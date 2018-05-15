@@ -30,9 +30,9 @@ PROGRAM Ising
     OPEN(UNIT = 11, STATUS = 'REPLACE', POSITION = 'APPEND', FILE = '1.dat')
     
     CALL init_random_seed()
-    !WRITE(*,*) "n ->(n < 10000000)"
-    !READ(*,*) n
-    n = 10000                                       !n为迭代次数，可以修改，但是应该是有上限的
+    WRITE(*,*) "n ->(n < 10000000)"
+    READ(*,*) n
+    !n = 10000                                       !n为迭代次数，可以修改，但是应该是有上限的
     T = 3.5                                         !温度T,可以修改
     E = 0                                           !总能量E
     stay = 1                                        !自旋改变的概率，与温度T和ΔE有关
@@ -67,7 +67,8 @@ PROGRAM Ising
     END DO
     !END DO
     E = E/2                                         !这里除了个2，是我感觉上面重复计算了一次，只是感觉，也没细想
-    WRITE(*,*) "00000",E                            !输出初始能量
+    WRITE(*,*) "00000",(E/(p * q))                  !输出初始能量
+    WRITE(11,*) 0,(E/(p * q))
     CALL SYSTEM_CLOCK(COUNT = clock)
     starttime = clock                               !记录初始模拟时间
 
@@ -103,7 +104,7 @@ PROGRAM Ising
         END IF
         
         IF (i > 0) THEN
-            WRITE(11,*) i,E                         !输出到1.dat文件中，将11改为*是输出到命令行，这里IF不用写，我只想改下条件，取个截断
+            WRITE(11,*) i,(E/(p * q))               !输出到1.dat文件中，将11改为*是输出到命令行，这里IF不用写，我只想改下条件，取个截断
         END IF
     END DO
     !WRITE(*,*) stay,S(x,y)

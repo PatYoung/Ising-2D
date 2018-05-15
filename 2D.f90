@@ -22,25 +22,28 @@ END SUBROUTINE init_random_seed
 
 PROGRAM Ising
     IMPLICIT NONE
-    INTEGER i,j,T,n,m,x,y,clock
+    INTEGER i,j,n,m,x,y,clock
     INTEGER,PARAMETER :: p = 60
     INTEGER,PARAMETER :: q = 60
-    REAL(KIND = 8) E,dE,starttime,endtime,a,b,c,d,Ei,Ef,stay
+    REAL(KIND = 8) E,dE,starttime,endtime,a,b,c,d,Ei,Ef,stay,w,T
     REAL(KIND = 8) :: S(p + 2,q + 2)                !用一个62×62维的数组表示二维伊辛模型，多出的两个为考虑周期边界条件添加的
     OPEN(UNIT = 11, STATUS = 'REPLACE', POSITION = 'APPEND', FILE = '1.dat')
     
     CALL init_random_seed()
     !WRITE(*,*) "n ->(n < 10000000)"
     !READ(*,*) n
+    WRITE(*,*) "T ->"
+    READ(*,*) T
     n = 100000                                      !n为迭代次数，可以修改，但是应该是有上限的
-    T = 3.5                                         !温度T,可以修改
+    !T = 3.5                                         !温度T,可以修改
     E = 0                                           !总能量E
+    w = 0
     stay = 1                                        !自旋改变的概率，与温度T和ΔE有关
     DO i = 2,p + 1                                  !初始自旋赋值
         DO j = 2,q + 1
             CALL RANDOM_NUMBER(d)                   !取零到一的随机数
             
-            IF (d < 1) THEN                         !这里随机取初始值，d < 1时，初始值均为-1，与均为1一样，修改d小于的数，影响自旋初始取值概率
+            IF (d < w) THEN                         !这里随机取初始值，d < 1时，初始值均为-1，与均为1一样，修改d小于的数，影响自旋初始取值概率
                 S(i,j) = - 1                        !满足条件，自旋初始取-1
             ELSE
                 S(i,j) = 1                          !不满足条件，自旋初始值取1
@@ -67,7 +70,8 @@ PROGRAM Ising
         END DO
     END DO
     E = E/2                                         !这里除了个2，是我感觉上面重复计算了一次，只是感觉，也没细想
-    WRITE(*,*) "00000",E                            !输出初始能量
+    WRITE(*,*) "00000",(E/(p * q))                  !输出初始能量
+    WRITE(11,*) 0,(E/(p * q))
     CALL SYSTEM_CLOCK(COUNT = clock)
     starttime = clock                               !记录初始模拟时间
 
@@ -102,7 +106,7 @@ PROGRAM Ising
         END IF
         
         IF (i > 0) THEN
-            WRITE(11,*) i,E                         !输出到1.dat文件中，将11改为*是输出到命令行，这里IF不用写，我只想改下条件，取个截断
+            WRITE(11,*) i,(E/(p * q))               !输出到1.dat文件中，将11改为*是输出到命令行，这里IF不用写，我只想改下条件，取个截断
         END IF
     END DO
     !WRITE(*,*) stay,S(x,y)
