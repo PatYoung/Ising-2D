@@ -32,12 +32,12 @@ PROGRAM Ising
     CALL init_random_seed()
     !WRITE(*,*) "n ->(n < 10000000)"
     !READ(*,*) n
-    WRITE(*,*) "T ->"
-    READ(*,*) T
-    n = 100000                                      !n为迭代次数，可以修改，但是应该是有上限的
-    !T = 3.5                                         !温度T,可以修改
+    !WRITE(*,*) "T ->"
+    !READ(*,*) T
+    n = 3000000                                     !n为迭代次数，可以修改，但是应该是有上限的
+    T = 3.5                                         !温度T,可以修改
     E = 0                                           !总能量E
-    w = 0
+    w = 0.5
     stay = 1                                        !自旋改变的概率，与温度T和ΔE有关
     DO i = 2,p + 1                                  !初始自旋赋值
         DO j = 2,q + 1
@@ -80,6 +80,9 @@ PROGRAM Ising
     !        WRITE(*,*) S(i,j)
     !    END DO
     !END DO
+    
+    WRITE(*,*) "i = ",0,"T = ",T
+
     DO i = 1,n
         CALL RANDOM_NUMBER(a)                       !用随机数a和b表示随意的在（2，61）取一个点，1和62是边界
         CALL RANDOM_NUMBER(b)
@@ -108,6 +111,27 @@ PROGRAM Ising
         IF (i > 0) THEN
             WRITE(11,*) i,(E/(p * q))               !输出到1.dat文件中，将11改为*是输出到命令行，这里IF不用写，我只想改下条件，取个截断
         END IF
+        
+        IF (i < 1000001 .AND. MOD(i,50000) == 0) THEN
+            T = T - 0.1
+            WRITE(*,*) "i = ",i,"T = ",T
+        END IF
+
+        IF (i > 999999 .AND.i < 1500000 .AND. MOD(i,50000) == 0) THEN
+            T = 1.5
+            WRITE(*,*) "i = ",i,"T = ",T
+        END IF
+
+        IF (i > 1499999 .AND. i < 2500000 .AND. MOD(i,50000) == 0) THEN
+            T = T + 0.1
+            WRITE(*,*) "i = ",i,"T = ",T
+        END IF
+
+        IF (i > 2499999 .AND. MOD(i,50000) == 0) THEN
+            T = 3.5
+            WRITE(*,*) "i = ",i,"T = ",T
+        END IF
+
     END DO
     !WRITE(*,*) stay,S(x,y)
     !DO i = 1,p
