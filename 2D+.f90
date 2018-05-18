@@ -13,18 +13,20 @@ END SUBROUTINE init_random_seed
 
 PROGRAM Ising
     IMPLICIT NONE
-    INTEGER i,j,T,n,m,x,y,clock
+    INTEGER i,j,n,m,x,y,clock
     INTEGER,PARAMETER :: p = 60
     INTEGER,PARAMETER :: q = 60
-    REAL(KIND = 8) E,dE,starttime,endtime,a,b,c,d,Ei,Ef,stay
+    REAL(KIND = 8) E,dE,starttime,endtime,a,b,c,d,Ei,Ef,stay,T,He,He2,PFC,ACC,Cv
     REAL(KIND = 8) :: S(p + 2,q + 2)
     OPEN(UNIT = 11, STATUS = 'REPLACE', POSITION = 'APPEND', FILE = '1.dat')
-    
+    OPEN(UNIT = 12, POSITION = 'APPEND', FILE = '2.dat')
     CALL init_random_seed()
     !WRITE(*,*) "n ->(n < 10000000)"
     !READ(*,*) n
-    n = 50000
-    T = 3.5
+    WRITE(*,*) "T ->"
+    READ(*,*) T
+    n = 500000
+    !T = 1.5
     E = 0
     stay = 1
     DO i = 2,p + 1
@@ -89,10 +91,29 @@ PROGRAM Ising
             E = E
         END IF
         
-        IF (i > 0) THEN
-            WRITE(11,*) i,E
+        IF (stay > 1) THEN
+            stay = 1
         END IF
+        
+        IF (i > 300000) THEN
+            ACC = ACC + stay
+            He = He + E
+            He2 = He2 + E * E
+        END IF
+        !IF (i > (n - 1000)) THEN
+        !    WRITE(*,*) i,E,ACC,He
+        !END IF
     END DO
+    
+    He = He / n
+    He2 = He2 /n
+    PFC = He2 - He * He
+    ACC = ACC / n
+    Cv = PFC / (T * T)
+    WRITE(*,*) "He = ",He,"He2 = ",He2
+    WRITE(*,*) "ACC = ",ACC,"PFC = ",PFC 
+    WRITE(*,*) "Cv = ",Cv
+    WRITE(12,*) T,Cv
     !WRITE(*,*) stay,S(x,y)
     !DO i = 1,p
     !    DO j = 1,q
